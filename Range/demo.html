@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+    <title>Document</title>
+    <style>
+        *{margin: 0;padding: 0}
+        .RangeBox{
+            padding: 50px 50px;
+            margin: 0 auto;
+            width: 1051px;
+        }
+        .range{
+            position: relative;
+            display: inline-block;
+        }
+         .range-center{
+             border: 1px solid #000;
+             font-size:0;
+             display: block;
+         }
+         .range-part{
+             padding: 20px 0px;
+             width: 3px;
+             font-size: 12px;
+             border-right: 1px solid #000;
+             display: inline-block;
+             vertical-align: middle;
+         }
+         .range-part:last-child{
+             border-right: none;
+         }
+         .range-part:after{
+             content: '';
+             display: table;
+             clear: both;
+         }
+         .range-spot{
+            position: relative;
+            left: -33px;
+            background: #fff;
+            display: inline-block;
+            font-size: 0;
+         }
+         .range-spot-right{
+            position: relative;
+            left: 24px;
+            background: #fff;
+            /* display: inline-block; */
+            float: right;
+            font-size: 0;
+         }
+         .range-btn{
+            position: absolute;
+            color: #fff;
+            padding: 2px 0px;
+            width: 46px;
+            cursor: pointer;
+            user-select: none; 
+            z-index: 1001;
+            text-align: center;
+            transform: translateX(-50%);
+         }
+         .range-dargBtnTop{
+            top: -37px;
+            border: 1px solid #2196F3;
+            background: #2196F3;
+         }
+         .range-dargBtnTop:after{
+            content: '';
+            width: 0;
+            height: 0;
+            border-width: 10px 10px 0;
+            border-style: solid;
+            border-color: #2196F3 transparent transparent;
+            position: absolute;
+            top: 25px;
+            left: 50%;
+            margin-left: -10px;
+         }
+         .range-dargBtnBottom{
+            bottom: -38px;
+            border: 1px solid #4CAF50;
+            background: #4CAF50;
+         }
+         .range-dargBtnBottom:after{
+            content: '';
+            width: 0;
+            height: 0;
+            border-width: 0 10px 10px ;
+            border-style: solid;
+            border-color: transparent transparent #4CAF50;
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            margin-left: -10px;
+         }
+         .range-els{
+            float: left;
+            left: -5px;
+            background: #fff;
+         }
+         .range-msg{
+            margin-top: 50px;
+         }
+         .blue{
+             background: #2196F3;
+         }
+         .green{
+             background: #4CAF50;
+         }
+    </style>
+</head>
+<body>
+    <div class="RangeBox">
+        <div class="range">
+            <div class="range-btn range-dargBtnTop">开挖</div>
+            <div class="range-center">
+                <!-- <div class="range-part">
+                    <span class="range-spot">DK52-371</span>
+                </div> -->
+            </div>
+            <div class="range-btn range-dargBtnBottom">浇筑</div>       
+        </div>
+        <div class="range-msg">
+            <div class="topmsg">开挖：<span></span></div>
+            <div class="bottommsg">浇筑：<span></span></div>
+        </div>
+    </div>
+</body>
+</html>
+<script>
+
+    var  Range = $('.range'),
+         RangeTopBtn =  $('.range-dargBtnTop'),
+         RangeBottomBtn = $('.range-dargBtnBottom'),
+         excavateSpot='',
+         pouringSpot ='';
+        
+        CreatSpot();
+
+        function BtnInit(btn){
+            btn.mousedown(function(e){
+                $('.range-btn').removeClass('active');
+                $(this).addClass('active');
+                $('html').mousemove(function(e){
+                    movehandle(e,btn);
+                })
+            })
+            btn.mouseup(function(e){
+                moveuphandle(e,btn);
+                $('html').unbind("mousemove");
+            })
+        }
+
+        function Distancehandle(e,btn){
+            var dis =  parseInt(e.pageX - $('.range')[0].offsetLeft);
+            var disWidth = $('.range').width(); //-btn.outerWidth();
+            if(dis<0){dis = 0}
+            if(dis>disWidth){dis = disWidth}
+            return dis;
+        }
+       
+        function movehandle(e,btn){
+
+           var dis = Distancehandle(e,btn);
+           var TopBtnLeft = parseInt($('.range-dargBtnTop').css('left')),
+               BottomBtnLeft = parseInt($('.range-dargBtnBottom').css('left'));
+
+            if(btn.hasClass('range-dargBtnBottom')){
+                if(dis>TopBtnLeft){dis = TopBtnLeft;}
+            }
+
+            if(btn.hasClass('range-dargBtnTop')){
+                if(dis<BottomBtnLeft){dis = BottomBtnLeft;}
+            }
+
+            if(btn.hasClass('active')){
+                $('.active')[0].style.left = dis + 'px';
+            }  
+
+            var partWidth =parseInt($('.range-part').outerWidth());
+            var remainder = dis%partWidth;
+                Quotient =  Math.round(dis/partWidth),
+                around = '.range-spot',
+                index = Quotient;
+
+            if(remainder>(partWidth/2)||dis==$('.range').width()){           
+                if(Quotient == $('.range-part').length){
+                    index =  Quotient-1;
+                    around = '.range-spot-right';
+                 }
+            }
+
+            if($('.active').hasClass('range-dargBtnTop')){
+                $('.topmsg').find('span').html($('.range-part').eq(index).find(around).text());  
+                $('.range-part').removeClass('blue');
+                for(var i = 0;i<Quotient;i++){      
+                    $('.range-part').eq(i).addClass('blue');                   
+                }
+            }else{
+                $('.bottommsg').find('span').html($('.range-part').eq(index).find(around).text())
+                $('.range-part').removeClass('green');
+                for(var i = 0;i<Quotient;i++){
+                    $('.range-part').eq(i).addClass('green');
+                }
+            }
+         
+        }
+
+        function moveuphandle(e,btn){
+
+            var dis = Distancehandle(e,btn);
+            var partWidth =parseInt($('.range-part').outerWidth());
+            var remainder = dis%partWidth;
+                Quotient =  Math.round(dis/partWidth),
+                around = '.range-spot',
+                index = Quotient;
+
+            if(!btn.hasClass('active')){return}
+            if(remainder>(partWidth/2)||dis==$('.range').width()){
+                // btn[0].style.left = Quotient*partWidth + 'px';//-btn.outerWidth()                     
+                if(Quotient == $('.range-part').length){
+                    index =  Quotient-1;
+                    around = '.range-spot-right';
+                }
+            }else{
+                btn[0].style.left = Quotient*partWidth + 'px';
+            }
+            
+            if(btn.hasClass('range-dargBtnTop')){
+                excavateSpot  = HandleSpot($($('.range-part')[index]).find(around).text()); 
+                console.log(excavateSpot  + ' '+'aaaaaaa');
+            }
+            if(btn.hasClass('range-dargBtnBottom')){
+                pouringSpot = HandleSpot($($('.range-part')[index]).find(around).text()); 
+                console.log(pouringSpot + ' '+'bbbbbbbbb');
+            }
+            btn.removeClass('active');
+        }
+            
+        function CreatSpot(){
+            for(var i=0;i<14;i++){
+            $('.range-center').append(' <div class="range-part"><span class="range-spot">DK50+'+(688+i*9)+'</span></div>');
+            }
+            $('.range-center').append(' <div class="range-part"><span class="range-spot">DK50+813</span></div>');
+            $('.range-center').append(' <div class="range-part"><span class="range-spot">DK50+820</span></div>');
+            $('.range-center').append(' <div class="range-part"><span class="range-spot">DK50+826</span></div>');
+            for(var i= 0;i<19;i++){
+                $('.range-center').append(' <div class="range-part"><span class="range-spot">DK50+'+(835+i*9)+'</span></div>');
+            }
+            for(var i= 0;i<14;i++){
+                $('.range-center').append(' <div class="range-part"><span class="range-spot">DK51+'+FillZero(006+i*9)+'</span></div>');
+            }
+            $('.range-center').append(' <div class="range-part"><span class="range-spot">DK51+130</span></div>');
+            $('.range-center').append(' <div class="range-part"><span class="range-spot">DK51+136</span></div>');
+            for(var i= 0;i<48;i++){
+                $('.range-center').append(' <div class="range-part"><span class="range-spot">DK51+'+(145+i*9)+'</span></div>');
+            }
+            $('.range-center').append(' <div class="range-part"><span class="range-spot">DK51+576</span></div>');
+            for(var i= 0;i<27;i++){
+                $('.range-center').append(' <div class="range-part"><span class="range-spot">DK51+'+(585+i*9)+'</span></div>');
+            }
+            $('.range-center').append(' <div class="range-part"><span class="range-spot">DK51+826</span></div>');
+            for(var i= 0;i<19;i++){
+                $('.range-center').append(' <div class="range-part"><span class="range-spot">DK51+'+(835+i*9)+'</span></div>');
+            }
+            for(var i= 0;i<8;i++){
+                $('.range-center').append(' <div class="range-part"><span class="range-spot">DK52+'+FillZero(006+i*9)+'</span></div>');
+            }
+            $('.range-center').append(' <div class="range-part"><span class="range-spot">DK51+076</span></div>');
+            for(var i= 0;i<23;i++){
+                $('.range-center').append(' <div class="range-part"><span class="range-spot">DK52+'+FillZero(085+i*9)+'</span></div>');
+            }
+            $('.range-center').append(' <div class="range-part"><span class="range-spot">DK51+283</span></div>');
+            $('.range-center').append(' <div class="range-part"><span class="range-spot">DK51+289</span></div>');
+            for(var i= 0;i<3;i++){
+                $('.range-center').append(' <div class="range-part"><span class="range-spot">DK52+'+(295+i*9)+'</span></div>');
+            }
+            $('.range-center').append(' <div class="range-part"><span class="range-spot">DK51+319</span></div>');
+            $('.range-center').append(' <div class="range-part"><span class="range-spot">DK51+326</span></div>');
+            for(var i= 0;i<27;i++){
+                $('.range-center').append(' <div class="range-part"><span class="range-spot">DK52+'+(335+i*9)+'</span></div>');
+            }
+            $('.range-center').append(' <div class="range-part"><span class="range-spot">DK51+576</span></div>');
+            for(var i= 0;i<21;i++){
+                if(i == 19){
+                    $('.range-center').append(' <div class="range-part"><span class="range-spot">DK52+756</span><span class="range-spot-right">DK52+765</span></div>');
+                    i=21;
+                }else{
+                    $('.range-center').append(' <div class="range-part"><span class="range-spot">DK52+'+(585+i*9)+'</span></div>');
+                }
+            }
+        }
+
+        function FillZero(num){
+            if(num>=100){return num;}
+            if(num>=10){
+                num = '0'+num;
+            }
+            if(num<10){
+                num = '00'+num;
+            }
+            return num;
+        }
+
+        function GetPointIndex(position,dir){
+            if(dir){
+                position  =  dir == 'top'? $('.topmsg').find('span').text():$('.bottommsg').find('span').text();
+            }
+            var length  = $('.range-part').find('span').length;
+            var index = 0;
+            for(var i= 0;i<length;i++){
+                if($('.range-part').find('span').eq(i).text()==position){
+                    index = i;
+                }
+            }
+            return index;
+        }
+
+        function SetPointIndex(position,dir){
+            var index = GetPointIndex(position);
+            var partWidth =parseInt($('.range-part').outerWidth());
+            var around = index== ($('.range-part').find('span').length-1)?'.range-spot-right':'.range-spot';
+            if(index == ($('.range-part').find('span').length-1)){
+                    index=index-1
+            }
+            if(dir == 'top'){
+                RangeTopBtn[0].style.left = index*partWidth + 'px';
+                for(var i = 0;i<index;i++){
+                    $('.range-part').eq(i).addClass('blue');  
+                }
+                 $('.topmsg').find('span').html($('.range-part').eq(index).find(around).text());  
+
+            }else{
+                RangeBottomBtn[0].style.left = index*partWidth + 'px';
+                for(var i = 0;i<index;i++){
+                    $('.range-part').eq(i).addClass('green');  
+                }
+                $('.bottommsg').find('span').html($('.range-part').eq(index).find(around).text());  
+            }
+        }
+
+        function HandleSpot(str){
+           return str.replace('DK','').replace('+','');
+        }
+        
+        var btn1 = new BtnInit(RangeTopBtn)
+            btn2 = new BtnInit(RangeBottomBtn);
+
+        SetPointIndex('DK52+765','bottom');
+        SetPointIndex('DK52+765','top');
+
+</script>
