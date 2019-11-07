@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        body{
+            background: #863a3a;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+        }
+        button{
+            border: 1px solid #d000;
+            height: 6vh;
+            color: #fff;
+            background: #ff0000cc;
+            margin-top: 15px;
+        }
+        p{
+            color:#fff;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+        h1 {
+            text-align: center;
+            color: #fff;
+            align-items: flex-start;
+        }
+    </style>
+</head>
+<body>
+    <h1>大吉大利今晚中奖！！</h1>
+    <div>
+        <p class="one"></p>
+        <p class="two"></p>
+    </div>
+    <button>生成今天的彩票</button>
+</body>
+</html>
+<script>
+
+    document.querySelector('button').addEventListener('click',function () {
+        var text=[],text1=[];
+        document.querySelector('.one').innerHTML='';
+        document.querySelector('.two').innerHTML ='';
+        while (text.length<5){
+            text.push(Math.floor(Math.random()*35+1))
+            text = [... new Set(text)]
+        }
+        while (text1.length<2){
+            text1.push(Math.floor(Math.random()*12+1))
+            text1 = [... new Set(text1)]
+        }
+        console.log(text1)
+        for (var i = 0 ; i<text.length;i++){
+            document.querySelector('.one').innerHTML += text[i]+' ';
+        }
+        for (var i = 0 ; i<text1.length;i++){
+            document.querySelector('.two').innerHTML += text1[i]+' ';
+        }
+    })
+</script>
